@@ -4037,9 +4037,9 @@ export const action = async ({ request }) => {
 wrappers/BigSidebar.js
 
 ```css
-  .pending {
-    background: var(--background-color);
-  }
+.pending {
+  background: var(--background-color);
+}
 ```
 
 AddJob.jsx
@@ -5104,7 +5104,7 @@ export default SubmitBtn;
 
 
 {
-  "name": "Gigglesworth",
+  "name": "Tester Testy",
   "email": "test@test.com",
   "password": "secret123",
   "lastName": "Snickerdoodle",
