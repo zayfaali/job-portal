@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { StatusCodes } from "http-status-codes";
 import User from "../models/UserModel.js";
 import Employer from "../models/EmployerModel.js";
@@ -122,7 +123,7 @@ export const getApplication = async (req, res) => {
 export const updatedJobApplication = async (req, res) => {
   const { jobId } = req.params;
   const updatedJobValues = req.body; // Assuming updated job values are sent in the request body
-
+  console.log(updatedJobValues);
   try {
     // Find the job application and populate the 'job' field
     const jobApplication = await JobApplication.findById(jobId).populate("job");
@@ -131,18 +132,96 @@ export const updatedJobApplication = async (req, res) => {
       return res.status(404).json({ error: "Job Application not found" });
     }
 
-    // Create a copy of the updated job values
-    const updatedJob = { ...updatedJobValues };
-
-    // Set the updated job values in the jobApplication
-    jobApplication.job = updatedJob;
+    // Update each property of the "job" object individually
+    if (updatedJobValues.company) {
+      jobApplication.job.company = updatedJobValues.company;
+    }
+    if (updatedJobValues.position) {
+      jobApplication.job.position = updatedJobValues.position;
+    }
+    if (updatedJobValues.jobStatus) {
+      jobApplication.job.jobStatus = updatedJobValues.jobStatus;
+    }
+    if (updatedJobValues.jobType) {
+      jobApplication.job.jobType = updatedJobValues.jobType;
+    }
+    if (updatedJobValues.jobLocation) {
+      jobApplication.job.jobLocation = updatedJobValues.jobLocation;
+    }
 
     // Save the updated job application document.
-    await jobApplication.save();
+    await jobApplication.job.save();
 
     res.status(200).json({ updatedJobApplication: jobApplication });
+    console.log("Updated job application:", jobApplication); // Add this line for debugging
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal server error" });
   }
+};
+
+//APPLICATION STATS
+export const showApplicationStats = async (req, res) => {
+  let stats = await JobApplication.aggregate([
+    { $match: { user: new mongoose.Types.ObjectId(req.user.userId) } },
+    {
+      $lookup: {
+        from: "jobs", // Replace with the actual name of your jobs collection
+        localField: "job",
+        foreignField: "_id",
+        as: "job",
+      },
+    },
+    {
+      $unwind: "$job", // Unwind the "job" array created by the $lookup stage
+    },
+    {
+      $group: {
+        _id: "$job.jobStatus",
+        count: { $sum: 1 },
+      },
+    },
+  ]);
+  console.log("Stats:", stats); // Add this line for debugging
+  stats = stats.reduce((acc, curr) => {
+    const { _id: title, count } = curr;
+    acc[title] = count;
+    return acc;
+  }, {});
+
+  const defaultStats = {
+    pending: stats.pending || 0,
+    interview: stats.interview || 0,
+    declined: stats.declined || 0,
+  };
+
+  let monthlyApplications = await Job.aggregate([
+    { $match: { createdBy: new mongoose.Types.ObjectId(req.user.userId) } },
+    {
+      $group: {
+        _id: { year: { $year: "$createdAt" }, month: { $month: "$createdAt" } },
+        count: { $sum: 1 },
+      },
+    },
+    { $sort: { "_id.year": -1, "_id.month": -1 } },
+    { $limit: 6 },
+  ]);
+
+  monthlyApplications = monthlyApplications
+    .map((item) => {
+      const {
+        _id: { year, month },
+        count,
+      } = item;
+
+      const date = day()
+        .month(month - 1)
+        .year(year)
+        .format("MMM YY");
+
+      return { date, count };
+    })
+    .reverse();
+
+  res.status(StatusCodes.OK).json({ defaultStats, monthlyApplications });
 };
