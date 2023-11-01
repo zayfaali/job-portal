@@ -18,6 +18,7 @@ import {
   JobApplications,
   UserApplications,
   EditJobApplication,
+  UserStats,
 } from "./pages";
 
 import { action as registerAction } from "./pages/Register";
@@ -30,6 +31,7 @@ import { action as editJobAction } from "./pages/EditJob";
 import { action as deleteJobAction } from "./pages/DeleteJob";
 import { loader as adminLoader } from "./pages/Admin";
 import { loader as StatsLoader } from "./pages/Stats";
+import { loader as UserStatsLoader } from "./pages/UserStats";
 import { action as profileAction } from "./pages/Profile";
 import { action as registerEmployerAction } from "./pages/RegisterEmployer";
 import { action as LoginEmployerAction } from "./pages/LoginEmployer";
@@ -88,6 +90,11 @@ export const router = createBrowserRouter([
             action: addJobAction,
           },
           { path: "stats", element: <Stats />, loader: StatsLoader },
+          {
+            path: "user-stats",
+            element: <UserStats />,
+            loader: UserStatsLoader,
+          },
           {
             path: "all-jobs",
             element: <AllJobs />,

@@ -11,6 +11,7 @@ const links = [
   { text: "add job", path: ".", icon: <FaWpforms /> },
   { text: "all jobs", path: "all-jobs", icon: <MdQueryStats /> },
   { text: "my jobs", path: "user-applications", icon: <FaStickyNote /> },
+  { text: "application stats", path: "user-stats", icon: <IoBarChartSharp /> },
   { text: "stats", path: "stats", icon: <IoBarChartSharp /> },
   { text: "profile", path: "profile", icon: <ImProfile /> },
   { text: "admin", path: "admin", icon: <MdAdminPanelSettings /> },

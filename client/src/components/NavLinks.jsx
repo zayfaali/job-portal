@@ -15,7 +15,9 @@ const NavLinks = ({ isBigSidebar }) => {
           (role !== "admin" && path === "admin") ||
           (role !== "employer" && path === ".") ||
           (role !== "employer" && path === "job-applications") ||
-          (role === "employer" && path === "user-applications")
+          (role === "employer" && path === "user-applications") ||
+          (role === "employer" && path === "user-stats") ||
+          (role === "user" && path === "stats")
         )
           return;
 
